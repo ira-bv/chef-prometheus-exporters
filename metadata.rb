@@ -7,7 +7,7 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 
 version          '0.15.6'
 
-chef_version '>= 12.14', '< 16.0'
+chef_version '>= 12.12', '< 16.0'
 
 supports 'amazon'
 supports 'centos', '>= 6.9'
