@@ -160,3 +160,12 @@ action :stop do
     action :stop
   end
 end
+
+action :restart do
+  service "process_exporter_#{new_resource.name}" do
+    action :stop
+  end
+  service "process_exporter_#{new_resource.name}" do
+    action :start
+  end
+end
