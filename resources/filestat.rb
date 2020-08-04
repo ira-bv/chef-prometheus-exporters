@@ -9,11 +9,7 @@
 
 resource_name :filestat_exporter
 
-property :globes_enabled, Array, callbacks: {
-  'should be a globe' => lambda do |globes|
-    globes.all? { |element| globe_LIST.include? element }
-  end,
-}, default: node['prometheus_exporters']['filestat']['globes_enabled'].dup
+property :globes_enabled, Array, default: node['prometheus_exporters']['filestat']['globes_enabled'].dup
 property :log_format, String, default: 'logger:stdout'
 property :log_level, String, default: 'info'
 property :user, String, default: 'root'
@@ -27,20 +23,25 @@ action :install do
   # Set property that can be queried with Chef search
   node.default['prometheus_exporters']['filestat']['enabled'] = true
 
-  service_name = "filestat_exporter_#{new_resource.name}"
-  options = " -config.file /usr/local/etc/#{service_name}.yaml"
+  service_name        = "filestat_exporter_#{new_resource.name}"
+  options             = " -config.file /usr/local/etc/#{service_name}.yaml"
+  workdir             = new_resource.collector_working_directory
+  globes              = new_resource.globes_enabled
+  web_listen_address  = new_resource.web_listen_address
+  web_telemetry_path  = new_resource.web_telemetry_path
 
   # Create config file - template should be replaced with code in the future?
   template "/usr/local/etc/#{service_name}.yaml" do
     source 'filestat.yaml.erb'
+    cookbook 'prometheus_exporters'
     owner 'root'
     group 'root'
     mode '0444'
-    variables (
-      workdir:            new_resource[collector_working_directory],
-      globes:             new_resource[globes_enabled],
-      web_listen_address: new_resource[web_listen_address],
-      web_telemetry_path: new_resource[web_telemetry_path],
+    variables(
+      workdir: workdir,
+      globes: globes,
+      web_listen_address: web_listen_address,
+      web_telemetry_path: web_telemetry_path
     )
     action :create
   end
@@ -63,7 +64,7 @@ action :install do
   end
 
   link '/usr/local/sbin/filestat_exporter' do
-    to "/opt/filestat_exporter-#{node['prometheus_exporters']['filestat']['version']}.linux-amd64/filestat_exporter"
+    to "/opt/filestat_exporter-v#{node['prometheus_exporters']['filestat']['version']}.linux-amd64/filestat_exporter"
   end
 
   # Configure to run as a service
@@ -150,10 +151,10 @@ action :install do
     raise "Init system '#{node['init_package']}' is not supported by the 'prometheus_exporters' cookbook"
   end
 
-  if new_resource.globe_textfile_directory and
-     new_resource.globe_textfile_directory != ''
-    directory 'globe_textfile_directory' do
-      path new_resource.globe_textfile_directory
+  if workdir and
+     workdir != ''
+    directory 'workdir' do
+      path workdir
       owner 'root'
       group 'root'
       mode '0755'
