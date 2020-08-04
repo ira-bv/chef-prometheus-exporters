@@ -1,0 +1,19 @@
+exporter:
+  #! Working directory of exporter
+  working_directory: '<%= @workdir %>'
+
+  #! Network parameters
+  listen_address: '<%= @web_listen_address %>'
+  metrics_path: <%= @metrics_path %>
+
+  #! Uncomment one of the following to enable default config
+  enable_crc32_metric: true
+  enable_nb_line_metric: true
+
+  # list of patterns to apply
+  files:
+<% if @globes && @globes.kind_of?(Hash) %>
+  <% @globes.each do |k| %>
+     - patterns: ['<%= k %>']'
+  <% end %>
+<% end %>

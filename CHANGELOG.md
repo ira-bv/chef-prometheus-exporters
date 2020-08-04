@@ -1,5 +1,10 @@
 # prometheus\_exporters
 
+
+## 0.15.7
+
+- [Ira Abramov] Adding the filestat exporter
+
 ## 0.15.6
 
 - [Kirill Kuznetsov] varnish recipe fix.
