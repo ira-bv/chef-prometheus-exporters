@@ -12,8 +12,6 @@ exporter:
 
   # list of patterns to apply
   files:
-<% if @globes && @globes.kind_of?(Hash) %>
-  <% @globes.each do |k| %>
-     - patterns: ['<%= k %>']'
-  <% end %>
+<% @globes.each do |k| %>
+     - patterns: ['<%= k %>']
 <% end %>
